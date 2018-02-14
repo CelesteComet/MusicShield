@@ -47280,16 +47280,16 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var root_url = './assets/skybox';
 var materialArray = [];
 var textureLoader = new THREE.TextureLoader();
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_px.jpg') }));
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.jpg') }));
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.jpg') }));
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.jpg') }));
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.jpg') }));
-materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.jpg') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_px.png') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.png') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.png') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.png') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.png') }));
+materialArray.push(new THREE.MeshBasicMaterial({ map: textureLoader.load(root_url + '_py.png') }));
 for (var i = 0; i < 6; i++) {
    materialArray[i].side = THREE.BackSide;
 }var skyboxMaterial = new THREE.MeshFaceMaterial(materialArray);
-var skyboxGeom = new THREE.CubeGeometry(5000, 5000, 5000, 1, 1, 1);
+var skyboxGeom = new THREE.CubeGeometry(10000, 10000, 10000, 1, 1, 1);
 var skybox = new THREE.Mesh(skyboxGeom, skyboxMaterial);
 
 exports.default = skybox;
@@ -50198,7 +50198,7 @@ var ForwardStage = function ForwardStage() {
 
   var height = 2;
   var geometry = new THREE.BoxGeometry(10, height, 10);
-  var material = new THREE.MeshBasicMaterial({ color: "rgb(18,0,128)", wireframe: wireframe });
+  var material = new THREE.MeshPhongMaterial({ color: "rgb(18,0,128)", wireframe: wireframe });
   var mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, -24);
   mesh.position.y += height / 2;
@@ -50208,10 +50208,14 @@ var ForwardStage = function ForwardStage() {
 var LeftSideStage = function LeftSideStage() {
   _classCallCheck(this, LeftSideStage);
 
+  var light = new THREE.PointLight(0x0B2EF0, 2, 100);
+  light.position.set(0, 0, 0);
+  _globals.scene.add(light);
+
   var _LeftSideStage = new THREE.Object3D();
   var height = 1;
   var geometry = new THREE.BoxGeometry(1, height, 14);
-  var material = new THREE.MeshBasicMaterial({ color: "rgb(18,0,18)", wireframe: wireframe });
+  var material = new THREE.MeshPhongMaterial({ color: "rgb(18,0,18)", wireframe: wireframe });
   var mesh = new THREE.Mesh(geometry, material);
   var mesh2 = mesh.clone();
   var mesh3 = mesh.clone();
