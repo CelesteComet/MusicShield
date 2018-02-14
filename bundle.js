@@ -60,202 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _three = __webpack_require__(1);
-
-var THREE = _interopRequireWildcard(_three);
-
-var _controls = __webpack_require__(2);
-
-var _controls2 = _interopRequireDefault(_controls);
-
-var _skybox = __webpack_require__(3);
-
-var _skybox2 = _interopRequireDefault(_skybox);
-
-var _BeatManager = __webpack_require__(4);
-
-var _BeatManager2 = _interopRequireDefault(_BeatManager);
-
-var _globals = __webpack_require__(7);
-
-var _gearVR = __webpack_require__(8);
-
-var _gearVR2 = _interopRequireDefault(_gearVR);
-
-var _webVR = __webpack_require__(9);
-
-var _webVR2 = _interopRequireDefault(_webVR);
-
-var _camera = __webpack_require__(13);
-
-var _camera2 = _interopRequireDefault(_camera);
-
-var _Shield = __webpack_require__(12);
-
-var _Shield2 = _interopRequireDefault(_Shield);
-
-var _MTLLoader = __webpack_require__(10);
-
-var _MTLLoader2 = _interopRequireDefault(_MTLLoader);
-
-var _OBJLoader = __webpack_require__(11);
-
-var _OBJLoader2 = _interopRequireDefault(_OBJLoader);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-// loaders
-
-
-// Game Objects
-var renderer, controls, controller, camBox;
-var controllerCube;
-window.onload = function () {
-
-  // Set up the scene, camera, and renderer as global variables.
-  init();
-  animate();
-};
-
-// Sets up the scene.
-function init() {
-
-  window.addEventListener('vr controller connected', function (event) {
-    controllerCube.position.x = 100.01;
-    // controller = event.detail;
-    // scene.add( controller );
-    // var
-    // meshColorOff = 0xDB3236,//  Red.
-    // meshColorOn  = 0xF4C20D,//  Yellow.
-    // controllerMaterial = new THREE.MeshStandardMaterial({
-    //   color: meshColorOff
-    // }),
-    // controllerMesh = new THREE.Mesh(
-    //   new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
-    //   controllerMaterial
-    // ),
-    // handleMesh = new THREE.Mesh(
-    //   new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
-    //   controllerMaterial
-    // )
-    // controllerMaterial.flatShading = true
-    // controllerMesh.rotation.x = -Math.PI / 2
-    // handleMesh.position.y = -0.05
-    // controllerMesh.add( handleMesh )
-    // controller.userData.mesh = controllerMesh//  So we can change the color later.
-    // controller.add( controllerMesh )
-    // castShadows( controller )
-    // receiveShadows( controller )
-  });
-  // Create the scene and set the scene size.
-  var WIDTH = window.innerWidth,
-      HEIGHT = window.innerHeight;
-  // Code from previous steps goes here...
-
-  // Create a renderer and add it to the DOM.
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.vr.enabled = true;
-  renderer.setSize(WIDTH, HEIGHT);
-
-  document.body.appendChild(renderer.domElement);
-  document.body.appendChild(_webVR2.default.createButton(renderer));
-
-  var axesHelper = new THREE.AxesHelper(5);
-  _globals.scene.add(axesHelper);
-
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
-  var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
-
-  _globals.scene.add(_skybox2.default);
-  camBox = new THREE.Object3D();
-  camBox.position.y = 1.8;
-  camBox.add(_camera2.default);
-  _globals.scene.add(camBox);
-
-  // Create a shield
-  var shield = new _Shield2.default();
-
-  // // Create VR controller
-  // controller = new gearVR();
-  // console.log(controller);
-  // controller.rotation.onChangeCallback = (e) => {
-  //   shield.mesh.position.x += 0.111; 
-  // };
-  // controller.setHand( 'right' );
-  // scene.add(controller);
-
-  // var MTL = new THREE.MTLLoader();
-  // MTL.setPath( 'assets/models/gear_vr_controller/' );
-  // MTL.load( 'gear_vr_controller.mtl', function ( materials ) {
-  //   materials.preload();
-  //   var OBJ = new THREE.OBJLoader();
-  //   OBJ.setMaterials( materials );
-  //   OBJ.setPath( 'assets/models/gear_vr_controller/' );
-  //   OBJ.load( 'gear_vr_controller.obj', function ( obj ) {
-  //     // obj.translateZ( 0 );
-  //     controller.add( obj );
-  //     // x is red, y is green, z is blue?
-  //     controller.position.set(0.4, 1.3, -1);
-  //   } );
-  // } );
-
-
-  // Create a light, set its position, and add it to the scene.
-  var light = new THREE.PointLight(0xffffff);
-  light.position.set(-100, 200, 100);
-  _globals.scene.add(light);
-
-  controls = new THREE.OrbitControls(_camera2.default, renderer.domElement);
-}
-_BeatManager2.default.createBeat();
-// Renders the scene and updates the render as needed.
-var tick = 0;
-
-function animate() {
-  tick += 1;
-  if (tick > 100) {
-    _BeatManager2.default.createBeat();
-    tick = 0;
-  }
-  // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-  requestAnimationFrame(animate);
-
-  // Render the scene.
-  renderer.render(_globals.scene, _camera2.default);
-  controls.update();
-  camBox.rotation.y = 3.14159 * 2;
-  _gearVR2.default.update();
-  if (controller !== undefined) {
-    controller.update();
-    camBox.rotation.y += 1;
-  }
-  _BeatManager2.default.update();
-}
-
-window.addEventListener('resize', function () {
-  var WIDTH = window.innerWidth,
-      HEIGHT = window.innerHeight;
-  renderer.setSize(WIDTH, HEIGHT);
-  _camera2.default.aspect = WIDTH / HEIGHT;
-  _camera2.default.updateProjectionMatrix();
-});
-
-/***/ }),
-/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -46237,7 +46046,221 @@ function CanvasRenderer() {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.scene = undefined;
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var scene = exports.scene = new THREE.Scene();
+
+/***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _controls = __webpack_require__(3);
+
+var _controls2 = _interopRequireDefault(_controls);
+
+var _skybox = __webpack_require__(4);
+
+var _skybox2 = _interopRequireDefault(_skybox);
+
+var _BeatManager = __webpack_require__(5);
+
+var _BeatManager2 = _interopRequireDefault(_BeatManager);
+
+var _globals = __webpack_require__(1);
+
+var _gearVR = __webpack_require__(8);
+
+var _gearVR2 = _interopRequireDefault(_gearVR);
+
+var _webVR = __webpack_require__(9);
+
+var _webVR2 = _interopRequireDefault(_webVR);
+
+var _camera = __webpack_require__(10);
+
+var _camera2 = _interopRequireDefault(_camera);
+
+var _Shield = __webpack_require__(11);
+
+var _Shield2 = _interopRequireDefault(_Shield);
+
+var _MTLLoader = __webpack_require__(12);
+
+var _MTLLoader2 = _interopRequireDefault(_MTLLoader);
+
+var _OBJLoader = __webpack_require__(13);
+
+var _OBJLoader2 = _interopRequireDefault(_OBJLoader);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// loaders
+
+
+// Game Objects
+var renderer, controls, controller, camBox;
+var controllerCube;
+window.onload = function () {
+
+   // Set up the scene, camera, and renderer as global variables.
+   init();
+   animate();
+};
+
+// Sets up the scene.
+function init() {
+
+   window.addEventListener('vr controller connected', function (event) {
+      controllerCube.position.x = 100.01;
+      // controller = event.detail;
+      // scene.add( controller );
+      // var
+      // meshColorOff = 0xDB3236,//  Red.
+      // meshColorOn  = 0xF4C20D,//  Yellow.
+      // controllerMaterial = new THREE.MeshStandardMaterial({
+      //   color: meshColorOff
+      // }),
+      // controllerMesh = new THREE.Mesh(
+      //   new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
+      //   controllerMaterial
+      // ),
+      // handleMesh = new THREE.Mesh(
+      //   new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
+      //   controllerMaterial
+      // )
+      // controllerMaterial.flatShading = true
+      // controllerMesh.rotation.x = -Math.PI / 2
+      // handleMesh.position.y = -0.05
+      // controllerMesh.add( handleMesh )
+      // controller.userData.mesh = controllerMesh//  So we can change the color later.
+      // controller.add( controllerMesh )
+      // castShadows( controller )
+      // receiveShadows( controller )
+   });
+   // Create the scene and set the scene size.
+   var WIDTH = window.innerWidth,
+       HEIGHT = window.innerHeight;
+   // Code from previous steps goes here...
+
+   // Create a renderer and add it to the DOM.
+   renderer = new THREE.WebGLRenderer({ antialias: true });
+   renderer.setPixelRatio(window.devicePixelRatio);
+   renderer.setSize(window.innerWidth, window.innerHeight);
+   renderer.vr.enabled = true;
+   renderer.setSize(WIDTH, HEIGHT);
+
+   document.body.appendChild(renderer.domElement);
+   document.body.appendChild(_webVR2.default.createButton(renderer));
+
+   var axesHelper = new THREE.AxesHelper(5);
+   _globals.scene.add(axesHelper);
+
+   var geometry = new THREE.BoxGeometry(1, 1, 1);
+   var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
+
+   _globals.scene.add(_skybox2.default);
+   camBox = new THREE.Object3D();
+   camBox.position.y = 1.8;
+   camBox.add(_camera2.default);
+   _globals.scene.add(camBox);
+
+   // Create a shield
+   var shield = new _Shield2.default();
+
+   // // Create VR controller
+   // controller = new gearVR();
+   // console.log(controller);
+   // controller.rotation.onChangeCallback = (e) => {
+   //   shield.mesh.position.x += 0.111; 
+   // };
+   // controller.setHand( 'right' );
+   // scene.add(controller);
+
+   // var MTL = new THREE.MTLLoader();
+   // MTL.setPath( 'assets/models/gear_vr_controller/' );
+   // MTL.load( 'gear_vr_controller.mtl', function ( materials ) {
+   //   materials.preload();
+   //   var OBJ = new THREE.OBJLoader();
+   //   OBJ.setMaterials( materials );
+   //   OBJ.setPath( 'assets/models/gear_vr_controller/' );
+   //   OBJ.load( 'gear_vr_controller.obj', function ( obj ) {
+   //     // obj.translateZ( 0 );
+   //     controller.add( obj );
+   //     // x is red, y is green, z is blue?
+   //     controller.position.set(0.4, 1.3, -1);
+   //   } );
+   // } );
+
+
+   // Create a light, set its position, and add it to the scene.
+   var light = new THREE.PointLight(0xffffff);
+   light.position.set(-100, 200, 100);
+   _globals.scene.add(light);
+
+   controls = new _controls2.default(_camera2.default);
+   // camera.position.set(0, 0, 0);
+   // camera.position.z = 20;
+   controls.update();
+}
+_BeatManager2.default.createBeat();
+// Renders the scene and updates the render as needed.
+var tick = 0;
+
+function animate() {
+   // tick += 1;
+   // if( tick > 100) {
+   //   BeatManager.createBeat();
+   //   tick = 0;
+   // }
+   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+
+
+   // Render the scene.
+   renderer.render(_globals.scene, _camera2.default);
+   camBox.rotation.y = 3.14159 * 2;
+   // gearVR.update();
+   if (controller !== undefined) {
+      controller.update();
+      camBox.rotation.y += 1;
+   }
+   _BeatManager2.default.update();
+   requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', function () {
+   var WIDTH = window.innerWidth,
+       HEIGHT = window.innerHeight;
+   renderer.setSize(WIDTH, HEIGHT);
+   _camera2.default.aspect = WIDTH / HEIGHT;
+   _camera2.default.updateProjectionMatrix();
+});
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46247,7 +46270,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
@@ -47221,7 +47244,7 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
 exports.default = THREE.OrbitControls;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47231,7 +47254,7 @@ Object.defineProperty(exports, "__esModule", {
    value: true
 });
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
@@ -47255,7 +47278,7 @@ var skybox = new THREE.Mesh(skyboxGeom, skyboxMaterial);
 exports.default = skybox;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47267,15 +47290,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
-var _Manager2 = __webpack_require__(5);
+var _Manager2 = __webpack_require__(6);
 
 var _Manager3 = _interopRequireDefault(_Manager2);
 
-var _Beat = __webpack_require__(6);
+var _Beat = __webpack_require__(7);
 
 var _Beat2 = _interopRequireDefault(_Beat);
 
@@ -47316,7 +47339,7 @@ var mBeatManager = new BeatManager();
 exports.default = mBeatManager;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47352,7 +47375,7 @@ var Manager = function () {
 exports.default = Manager;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47364,11 +47387,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
-var _globals = __webpack_require__(7);
+var _globals = __webpack_require__(1);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -47400,26 +47423,6 @@ var Beat = function () {
 exports.default = Beat;
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.scene = undefined;
-
-var _three = __webpack_require__(1);
-
-var THREE = _interopRequireWildcard(_three);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var scene = exports.scene = new THREE.Scene();
-
-/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -47430,7 +47433,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
@@ -48838,7 +48841,89 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/* Camera stuff */
+// fov — Camera frustum vertical field of view.
+// aspect — Camera frustum aspect ratio.
+// near — Camera frustum near plane.
+// far — Camera frustum far plane.
+
+var initialCameraPosition = new THREE.Vector3(0, 0, 0);
+
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
+
+camera.position.set(0, 0, 0);
+camera.position.z = 20;
+
+exports.default = camera;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Shield = function () {
+  function Shield() {
+    _classCallCheck(this, Shield);
+
+    // geometry and material of the shield 
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
+
+    // mesh creation
+    var shield = new THREE.Mesh(geometry, material);
+    this.mesh = shield;
+    // set initial position of the shield, 1.8 is the height of the camBox
+    this.mesh.position.set(0, 1.8, -5);
+
+    _globals.scene.add(this.mesh);
+  }
+
+  _createClass(Shield, [{
+    key: 'update',
+    value: function update() {}
+  }]);
+
+  return Shield;
+}();
+
+exports.default = Shield;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
@@ -49351,7 +49436,7 @@ THREE.MTLLoader.MaterialCreator.prototype = {
 exports.default = THREE.MTLLoader;
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49361,7 +49446,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _three = __webpack_require__(1);
+var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
@@ -49991,90 +50076,6 @@ THREE.OBJLoader = function () {
       */
 
 exports.default = THREE.OBJLoader;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _three = __webpack_require__(1);
-
-var THREE = _interopRequireWildcard(_three);
-
-var _globals = __webpack_require__(7);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Shield = function () {
-  function Shield() {
-    _classCallCheck(this, Shield);
-
-    // geometry and material of the shield 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
-
-    // mesh creation
-    var shield = new THREE.Mesh(geometry, material);
-    this.mesh = shield;
-    // set initial position of the shield, 1.8 is the height of the camBox
-    this.mesh.position.set(0, 1.8, -5);
-
-    _globals.scene.add(this.mesh);
-  }
-
-  _createClass(Shield, [{
-    key: 'update',
-    value: function update() {}
-  }]);
-
-  return Shield;
-}();
-
-exports.default = Shield;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _camera$position;
-
-var _three = __webpack_require__(1);
-
-var THREE = _interopRequireWildcard(_three);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-/* Camera stuff */
-// fov — Camera frustum vertical field of view.
-// aspect — Camera frustum aspect ratio.
-// near — Camera frustum near plane.
-// far — Camera frustum far plane.
-
-var initialCameraPosition = new THREE.Vector3(15, 15, 15);
-
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
-
-(_camera$position = camera.position).set.apply(_camera$position, _toConsumableArray(initialCameraPosition));
-exports.default = camera;
 
 /***/ })
 /******/ ]);
