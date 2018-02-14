@@ -46131,7 +46131,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 
 // options
-var renderer, controls, controller, camBox;
+var renderer, controls, controller, camBox, shield;
 
 // Game Objects
 
@@ -46205,7 +46205,7 @@ function init() {
   _globals.scene.add(new _Floor.RightSideStage());
 
   // Create a shield
-  var shield = new _Shield2.default();
+  // shield = new Shield;
 
   // // Create VR controller
   // controller = new gearVR();
@@ -46253,7 +46253,6 @@ function animate() {
     tick = 0;
   }
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-  console.log(beat);
   // Render the scene.
   renderer.render(_globals.scene, _camera2.default);
   // camBox.rotation.y = 3.14159 * 2;
@@ -46262,6 +46261,9 @@ function animate() {
     controller.update();
     camBox.rotation.y += 1;
   }
+
+  // update game entities
+  // shield.update();
   _BeatManager2.default.update();
   requestAnimationFrame(animate);
 }
@@ -47430,8 +47432,9 @@ var Beat = function () {
     _globals.scene.add(sphere);
     this.willRemove = false;
     this.mesh = sphere;
-    this.speed = 0.7;
-    this.startingPosition = new THREE.Vector3(0, 15, -100);
+    this.speed = 0.4;
+    var xPos = (0, _utils.getRandomNumberBetween)(-10, 10);
+    this.startingPosition = new THREE.Vector3(xPos, 30, -100);
     var _startingPosition = this.startingPosition,
         x = _startingPosition.x,
         y = _startingPosition.y,
@@ -47439,12 +47442,20 @@ var Beat = function () {
 
     this.mesh.position.set(x, y, z);
     this.velocity = (0, _utils.getDirectionBetweenTwoVectors)(this.startingPosition, new THREE.Vector3(0, 0, 0));
+
+    // lets add some collisions, origin, direction, near, far
+    this.ray = new THREE.Raycaster(this.mesh.position, this.velocity, 0, 1);
     return this;
   }
 
   _createClass(Beat, [{
     key: 'update',
     value: function update() {
+      if (this.ray.intersectObjects(_globals.scene.children).length > 0) {
+        if (this.ray.intersectObjects(_globals.scene.children)[0].object.name == 'shield') {
+          this.willRemove = true;
+        };
+      };
       var velocity = this.velocity,
           speed = this.speed,
           mesh = this.mesh;
@@ -48922,6 +48933,12 @@ var THREE = _interopRequireWildcard(_three);
 
 var _globals = __webpack_require__(1);
 
+var _Keyboard = __webpack_require__(17);
+
+var _Keyboard2 = _interopRequireDefault(_Keyboard);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48931,21 +48948,39 @@ var Shield = function () {
     _classCallCheck(this, Shield);
 
     // geometry and material of the shield 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var geometry = new THREE.BoxGeometry(1, 2, 0.2);
     var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
 
     // mesh creation
     var shield = new THREE.Mesh(geometry, material);
     this.mesh = shield;
+    this.mesh.name = 'shield';
     // set initial position of the shield, 1.8 is the height of the camBox
     this.mesh.position.set(0, 1.8, -5);
+    this.speed = 0.1;
 
     _globals.scene.add(this.mesh);
   }
 
   _createClass(Shield, [{
     key: 'update',
-    value: function update() {}
+    value: function update() {
+      var speed = this.speed,
+          mesh = this.mesh;
+
+      if (_Keyboard2.default.keys['left']) {
+        mesh.translateOnAxis(new THREE.Vector3(-1, 0, 0), speed);
+      }
+      if (_Keyboard2.default.keys['right']) {
+        mesh.translateOnAxis(new THREE.Vector3(1, 0, 0), speed);
+      }
+      if (_Keyboard2.default.keys['up']) {
+        mesh.translateOnAxis(new THREE.Vector3(0, 1, 0), speed);
+      }
+      if (_Keyboard2.default.keys['down']) {
+        mesh.translateOnAxis(new THREE.Vector3(0, -1, 0), speed);
+      }
+    }
   }]);
 
   return Shield;
@@ -50165,7 +50200,7 @@ var ForwardStage = function ForwardStage() {
   var geometry = new THREE.BoxGeometry(10, height, 10);
   var material = new THREE.MeshBasicMaterial({ color: "rgb(18,0,128)", wireframe: wireframe });
   var mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(0, 0, -18);
+  mesh.position.set(0, 0, -24);
   mesh.position.y += height / 2;
   return mesh;
 };
@@ -50220,7 +50255,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var opts = {
-  vr: 0,
+  vr: 1,
   wireframe: false
 };
 
@@ -50234,11 +50269,100 @@ exports.default = opts;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 var getDirectionBetweenTwoVectors = exports.getDirectionBetweenTwoVectors = function getDirectionBetweenTwoVectors(start, end) {
-  return end.sub(start).normalize();
+    return end.sub(start).normalize();
 };
+
+var getRandomNumberBetween = exports.getRandomNumberBetween = function getRandomNumberBetween(min, max) {
+    var min = Math.ceil(min);
+    var max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Keyboard = function () {
+  function Keyboard() {
+    _classCallCheck(this, Keyboard);
+
+    console.log("Keyboard initialized");
+    this.keys = {
+      'up': false,
+      'down': false,
+      'left': false,
+      'right': false,
+      'fire': false
+    };
+  }
+
+  _createClass(Keyboard, [{
+    key: 'init',
+    value: function init() {
+      var _this = this;
+
+      document.addEventListener('keydown', function (e) {
+        var code = e.keyCode;
+        if (code == 87) {
+          _this.keys['up'] = true;
+        }
+        if (code == 68) {
+          _this.keys['right'] = true;
+        }
+        if (code == 65) {
+          _this.keys['left'] = true;
+        }
+        if (code == 83) {
+          _this.keys['down'] = true;
+        }
+        if (code == 32) {
+          _this.keys['fire'] = true;
+        }
+      });
+
+      document.addEventListener('keyup', function (e) {
+        var code = e.keyCode;
+
+        if (code == 87) {
+          _this.keys['up'] = false;
+        }
+        if (code == 68) {
+          _this.keys['right'] = false;
+        }
+        if (code == 65) {
+          _this.keys['left'] = false;
+        }
+        if (code == 83) {
+          _this.keys['down'] = false;
+        }
+        if (code == 32) {
+          _this.keys['fire'] = false;
+        }
+      });
+    }
+  }]);
+
+  return Keyboard;
+}();
+
+var keyboard = new Keyboard();
+keyboard.init();
+
+exports.default = keyboard;
 
 /***/ })
 /******/ ]);
