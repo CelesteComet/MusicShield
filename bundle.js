@@ -47367,6 +47367,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _globals = __webpack_require__(1);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Manager = function () {
@@ -47377,9 +47379,12 @@ var Manager = function () {
   }
 
   _createClass(Manager, [{
-    key: "update",
+    key: 'update',
     value: function update() {
       for (var id in this.list) {
+        if (this.list[id].willRemove === true) {
+          _globals.scene.remove(this.list[id].mesh);
+        }
         this.list[id].update();
       }
     }
@@ -47423,6 +47428,7 @@ var Beat = function () {
     var material = new THREE.MeshBasicMaterial({ color: "rgb(100%, 0%, 0%)" });
     var sphere = new THREE.Mesh(geometry, material);
     _globals.scene.add(sphere);
+    this.willRemove = false;
     this.mesh = sphere;
     this.speed = 0.7;
     this.startingPosition = new THREE.Vector3(0, 15, -100);
@@ -47444,6 +47450,11 @@ var Beat = function () {
           mesh = this.mesh;
 
       mesh.translateOnAxis(velocity, speed);
+
+      // check for collisions on ground
+      if (mesh.position.y < 0) {
+        this.willRemove = true;
+      }
     }
   }]);
 
