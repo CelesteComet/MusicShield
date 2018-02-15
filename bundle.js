@@ -46076,7 +46076,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var opts = {
-  vr: 1,
+  vr: 0,
   wireframe: false
 };
 
@@ -46114,6 +46114,10 @@ var _webVR2 = _interopRequireDefault(_webVR);
 var _gearVr = __webpack_require__(18);
 
 var _gearVr2 = _interopRequireDefault(_gearVr);
+
+var _Controller = __webpack_require__(21);
+
+var _Controller2 = _interopRequireDefault(_Controller);
 
 var _datGUI = __webpack_require__(19);
 
@@ -46157,8 +46161,67 @@ console.log(dat);
 // loaders
 
 
-var renderer, controls, controller, camBox, shield, arrowHelper;
+// experiments
+
+// create the particle variables
+var particleCount = 10,
+    particles = new THREE.Geometry();
+// create the particle variables
+
+var pMaterial = new THREE.ParticleBasicMaterial({
+  color: 0xFFFFFF,
+  size: 1,
+  map: THREE.ImageUtils.loadTexture("assets/particle.png"),
+  blending: THREE.AdditiveBlending,
+  transparent: true
+});
+
+// now create the individual particles
+for (var p = 0; p < particleCount; p++) {
+
+  // create a particle with random
+  // position values, -250 -> 250
+  var pX = 1,
+      pY = 1,
+      pZ = 1,
+      particle = new THREE.Vector3(pX, pY, pZ);
+
+  // add it to the geometry
+  particles.vertices.push(particle);
+}
+
+// create the particle system
+var particleSystem = new THREE.Points(particles, pMaterial);
+
+// add it to the scene
+_globals.scene.add(particleSystem);
+
+var renderer, controls, controller, camBox, shield, arrowHelper, controllerMesh;
 var controllerCube;
+
+// do not delete above
+
+//   shield = new Shield;
+//   scene.add(shield);
+
+//   var meshColorOff = 0xDB3236;//  Red.
+//   var meshColorOn  = 0xF4C20D;//  Yellow.
+
+
+//   var controllerMaterial = new THREE.MeshStandardMaterial({
+//     color: meshColorOff
+//   });
+
+// var controllerMesh = new THREE.Mesh(
+//   new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
+//   controllerMaterial
+// );
+
+// var handleMesh = new THREE.Mesh(
+//   new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
+//   controllerMaterial
+// );
+
 
 // var dir = controllerMesh.up;
 
@@ -46174,6 +46237,8 @@ var controllerCube;
 // var raycaster = new THREE.Raycaster( origin, dir);
 // controllerMesh.add( arrowHelper );
 
+shield = new _Shield2.default();
+_globals.scene.add(shield);
 
 window.addEventListener('vr controller connected', function (event) {
 
@@ -46267,6 +46332,15 @@ window.onload = function () {
 // Sets up the scene.
 function init() {
 
+  // AUDIO STUFF ******************************************************
+  var audioElement = document.getElementById("myAudio");
+  audioElement.play();
+
+  // Particle Experiments ******************************************************
+
+
+  //*********************************************************************************
+
   // Create the scene and set the scene size.
   var WIDTH = window.innerWidth,
       HEIGHT = window.innerHeight;
@@ -46287,6 +46361,8 @@ function init() {
 
   var geometry = new THREE.BoxGeometry(1, 1, 1);
   var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
+
+  // var controller = new Controller;
 
   _globals.scene.add(_skybox2.default);
   camBox = new THREE.Object3D();
@@ -46355,16 +46431,10 @@ function animate() {
 
   // **** TEST DELETE AFTER *****///
   // controllerMesh.rotation.z += 0.1;
-  if (arrowHelper !== undefined) {
-    var _arrowHelper$children = arrowHelper.children[1].position,
-        x = _arrowHelper$children.x,
-        y = _arrowHelper$children.y,
-        z = _arrowHelper$children.z;
+  // if( arrowHelper !== undefined) {
+  //   shield.mesh.position.x = controllerMesh.position.x;
+  // }
 
-    shield.mesh.position.y = y;
-    shield.mesh.position.x = x;
-    shield.mesh.position.z = z;
-  }
 
   // update game entities
   if (shield !== undefined) {
@@ -47817,6 +47887,8 @@ var _Keyboard = __webpack_require__(14);
 
 var _Keyboard2 = _interopRequireDefault(_Keyboard);
 
+var _materials = __webpack_require__(22);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -47828,11 +47900,11 @@ var Shield = function () {
     _classCallCheck(this, Shield);
 
     // geometry and material of the shield 
-    var geometry = new THREE.BoxGeometry(1, 2, 0.2);
-    var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
+    var geometry = new THREE.BoxGeometry(1, 1.7, 0.2);
+    // var material = new THREE.MeshBasicMaterial( {color: "rgb(128,128,128)"} );
 
     // mesh creation
-    var shield = new THREE.Mesh(geometry, material);
+    var shield = new THREE.Mesh(geometry, _materials.orangeShieldMaterial);
     this.mesh = shield;
     this.mesh.name = 'shield';
     // set initial position of the shield, 1.8 is the height of the camBox
@@ -48015,12 +48087,13 @@ var ForwardStage = function ForwardStage() {
 var LeftSideStage = function LeftSideStage() {
   _classCallCheck(this, LeftSideStage);
 
-  var zPos = -10;
-  var light = new THREE.PointLight(0xA33423, 10, 40);
+  var zPos = -15;
+  var intensity = 5;
+  var light = new THREE.PointLight(0xA33423, 5, 40);
   light.position.set(-6, 0, 0);
   _globals.scene.add(light);
 
-  var light = new THREE.PointLight(0x0B2EF0, 10, 40);
+  var light = new THREE.PointLight(0x0B2EF0, 5, 40);
   light.position.set(6, 0, 0);
   _globals.scene.add(light);
 
@@ -51853,6 +51926,247 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 module.exports = __webpack_amd_options__;
 
 /* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Controller = function () {
+  function Controller() {
+    _classCallCheck(this, Controller);
+
+    console.log("creating new instance of controller");
+    this.ready = false;
+    this.mesh = new THREE.Object3D();
+
+    this.colors = {
+      red: 0xDB3236,
+      yellow: 0xF4C20D
+    };
+
+    this.setConnectedHandler = this.setConnectedHandler.bind(this);
+    this.createControllerMesh = this.createControllerMesh.bind(this);
+    this.attachRayCaster = this.attachRayCaster.bind(this);
+  }
+
+  _createClass(Controller, [{
+    key: 'setConnectedHandler',
+    value: function setConnectedHandler() {
+      var self = this;
+      window.addEventListener('vr controller connected', function (event) {
+        self.ready = true;
+        var controller = event.detail;
+        // currently there is no mesh, need to create a 
+        // controller model for it though createControllerMesh
+        self.mesh = controller;
+      });
+    }
+  }, {
+    key: 'createControllerMesh',
+    value: function createControllerMesh() {
+
+      // Create the material for the controller
+      var controllerMaterial = new THREE.MeshStandardMaterial({
+        color: this.colors.red
+      });
+
+      // Create the head mesh of the controller
+      this.controllerMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6), controllerMaterial);
+
+      // Save the direction of the controller head for use later on
+      this.direction = this.controllerMesh.up.normalize();
+      this.headOrigin = this.controllerMesh.position;
+      var length = 5;
+      var hex = 0xffff00;
+
+      // Create an arrow helper to show which way the controller head is facing
+      this.arrowHelper = new THREE.ArrowHelper(this.direction, this.headOrigin, length, hex);
+
+      // Create a rayCaster to grab objects
+      this.rayCaster = new THREE.Raycaster(this.headOrigin, this.direction);
+
+      this.controllerMesh.add(this.arrowHelper);
+
+      // Create the handle mesh of the controller
+      var handleMesh = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.1, 0.03), controllerMaterial);
+
+      // Create the controller handle relative to the controller head
+      controllerMaterial.flatShading = true;
+      this.controllerMesh.rotation.x = -Math.PI / 2;
+      handleMesh.position.y = -0.05;
+      this.controllerMesh.add(handleMesh);
+
+      // Add the entire controller model to the main class mesh
+      this.mesh.userData.mesh = this.controllerMesh; // So we can change the color later.
+      this.mesh.add(this.controllerMesh);
+    }
+  }, {
+    key: 'attachRayCaster',
+    value: function attachRayCaster() {
+      var dir = this.controllerMesh.up;
+
+      //normalize the direction vector (convert to vector of length 1)
+      dir.normalize();
+
+      var origin = this.controllerMesh.position;
+      var length = 5;
+      var hex = 0xffff00;
+
+      this.arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+      // Raycaster( origin, direction, near, far )
+      var raycaster = new THREE.Raycaster(origin, dir);
+      this.controllerMesh.add(this.arrowHelper);
+      _globals.scene.add(this.controllerMesh);
+      console.log(this.controllerMesh);
+    }
+  }]);
+
+  return Controller;
+}();
+
+exports.default = Controller;
+
+// window.addEventListener( 'vr controller connected', function( event ) {
+
+
+//   //Create a shield
+//   shield = new Shield;
+//   scene.add(shield);
+// //  Here it is, your VR controller instance.
+//   //  It’s really a THREE.Object3D so you can just add it to your scene:
+
+//   var controller = event.detail
+//   scene.add( controller )
+
+
+//   //  HEY HEY HEY! This is important. You need to make sure you do this.
+//   //  For standing experiences (not seated) we need to set the standingMatrix
+//   //  otherwise you’ll wonder why your controller appears on the floor
+//   //  instead of in your hands! And for seated experiences this will have no
+//   //  effect, so safe to do either way:
+
+//   // controller.standingMatrix = renderer.vr.getStandingMatrix()
+
+
+//   //  And for 3DOF (seated) controllers you need to set the controller.head
+//   //  to reference your camera. That way we can make an educated guess where
+//   //  your hand ought to appear based on the camera’s rotation.
+
+//   // controller.head = window.camera
+
+
+//   // controller = event.detail;
+//   scene.add( controller );
+//   var meshColorOff = 0xDB3236;//  Red.
+//   var meshColorOn  = 0xF4C20D;//  Yellow.
+
+//   var controllerMaterial = new THREE.MeshStandardMaterial({
+//     color: meshColorOff
+//   });
+
+//   var controllerMesh = new THREE.Mesh(
+//     new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
+//     controllerMaterial
+//   );
+
+
+//   var handleMesh = new THREE.Mesh(
+//     new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
+//     controllerMaterial
+//   );
+
+//   controllerMaterial.flatShading = true;
+//   controllerMesh.rotation.x = -Math.PI / 2;
+//   handleMesh.position.y = -0.05;
+//   controllerMesh.add( handleMesh );
+//   controller.userData.mesh = controllerMesh; //  So we can change the color later.
+//   controller.add( controllerMesh );
+//   // castShadows( controller );
+//   // receiveShadows( controller );
+
+
+//   var dir = controllerMesh.up;
+
+//   //normalize the direction vector (convert to vector of length 1)
+//   dir.normalize();
+
+//   var origin = controllerMesh.position;
+//   var length = 5;
+//   var hex = 0xffff00;
+
+//   arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+//   // Raycaster( origin, direction, near, far )
+//   var raycaster = new THREE.Raycaster( origin, dir);
+//   controllerMesh.add( arrowHelper );
+
+
+//   // //  Allow this controller to interact with DAT GUI.
+//   // var guiInputHelper = dat.addInputObject( controller )
+//   // scene.add( guiInputHelper )
+
+//   controller.addEventListener( 'primary press began', function( event ){
+//     event.target.userData.mesh.material.color.setHex( meshColorOn )
+//     guiInputHelper.pressed( true )
+//   })
+//   controller.addEventListener( 'primary press ended', function( event ){
+//     event.target.userData.mesh.material.color.setHex( meshColorOff )
+//     guiInputHelper.pressed( false )
+//   })
+//   //  Daddy, what happens when we die?
+//   controller.addEventListener( 'disconnected', function( event ){
+//     controller.parent.remove( controller )
+//   })
+// });
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.orangeShieldMaterial = exports.basicMaterial = undefined;
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var material = new THREE.MeshBasicMaterial({ color: "rgb(128,128,128)" });
+
+var basicMaterial = exports.basicMaterial = new THREE.MeshBasicMaterial({
+  color: "rgb(128, 128, 128)"
+});
+
+var orangeShieldMaterial = exports.orangeShieldMaterial = new THREE.MeshLambertMaterial({
+  transparent: true,
+  opacity: 0.9,
+  emmisive: 0xEC4C29,
+  color: 0xEC4C29
+});
 
 /***/ })
 /******/ ]);
