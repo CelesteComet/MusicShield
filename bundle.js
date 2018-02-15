@@ -46145,6 +46145,8 @@ var _OBJLoader = __webpack_require__(17);
 
 var _OBJLoader2 = _interopRequireDefault(_OBJLoader);
 
+var _Particle = __webpack_require__(23);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -46416,7 +46418,11 @@ function init() {
 var beat = _BeatManager2.default.createBeat();
 // Renders the scene and updates the render as needed.
 var tick = 0;
+
+var mParticlesInstance = new _Particle.ParticlesInstance(1);
+console.log(mParticlesInstance);
 function animate() {
+  mParticlesInstance.update();
   tick += 1;
   if (tick > 100) {
     _BeatManager2.default.createBeat();
@@ -52167,6 +52173,87 @@ var orangeShieldMaterial = exports.orangeShieldMaterial = new THREE.MeshLambertM
   emmisive: 0xEC4C29,
   color: 0xEC4C29
 });
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Particle = exports.ParticlesInstance = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+var _materials = __webpack_require__(22);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Particle = function () {
+  function Particle() {
+    _classCallCheck(this, Particle);
+
+    this.velocity = new THREE.Vector3(0, 200, 0);
+    var radius = 0.1;
+    var geometry = new THREE.CircleGeometry(radius, 32);
+    this.mesh = new THREE.Mesh(geometry, _materials.basicMaterial);
+    this.gravity = new THREE.Vector3(0, -10, 0);
+    this.speed = 0.001;
+    _globals.scene.add(this.mesh);
+  }
+
+  _createClass(Particle, [{
+    key: 'update',
+    value: function update() {
+      var velocity = this.velocity,
+          speed = this.speed;
+
+      this.velocity = this.velocity.add(this.gravity);
+      this.mesh.translateOnAxis(this.velocity, speed);
+      if (this.mesh.position.y < -5) {
+        _globals.scene.remove(this.mesh);
+      }
+    }
+  }]);
+
+  return Particle;
+}();
+
+var ParticlesInstance = function () {
+  function ParticlesInstance(size) {
+    _classCallCheck(this, ParticlesInstance);
+
+    this.array = [];
+    for (var i = 0; i < size; i++) {
+      this.array.push(new Particle());
+    }
+  }
+
+  _createClass(ParticlesInstance, [{
+    key: 'update',
+    value: function update() {
+      this.array.forEach(function (particle) {
+        particle.update();
+      });
+    }
+  }]);
+
+  return ParticlesInstance;
+}();
+
+exports.ParticlesInstance = ParticlesInstance;
+exports.Particle = Particle;
 
 /***/ })
 /******/ ]);
