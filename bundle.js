@@ -46419,7 +46419,7 @@ var beat = _BeatManager2.default.createBeat();
 // Renders the scene and updates the render as needed.
 var tick = 0;
 
-var mParticlesInstance = new _Particle.ParticlesInstance(1);
+var mParticlesInstance = new _Particle.ParticlesInstance(100, new THREE.Vector3(0, 0, 0));
 console.log(mParticlesInstance);
 function animate() {
   mParticlesInstance.update();
@@ -47681,6 +47681,10 @@ var getRandomNumberBetween = exports.getRandomNumberBetween = function getRandom
     var max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+
+// export const getRandomNumberBetweenOneAndNegativeOne = () => {
+//   num *= Math.floor(Math.random()*2) == 1 ? 1 : -1; // this will add minus sign in 50% of cases
+// }
 
 /***/ }),
 /* 10 */,
@@ -52153,7 +52157,7 @@ exports.default = Controller;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.orangeShieldMaterial = exports.basicMaterial = undefined;
+exports.orangeLaserMaterial = exports.orangeShieldMaterial = exports.basicMaterial = undefined;
 
 var _three = __webpack_require__(0);
 
@@ -52172,6 +52176,15 @@ var orangeShieldMaterial = exports.orangeShieldMaterial = new THREE.MeshLambertM
   opacity: 0.9,
   emmisive: 0xEC4C29,
   color: 0xEC4C29
+});
+
+var orangeLaserMaterial = exports.orangeLaserMaterial = new THREE.MeshBasicMaterial({
+  blending: THREE.AdditiveBlending,
+  color: 0xEC4C29,
+  side: THREE.DoubleSide,
+  depthWrite: false,
+  transparent: true,
+  emmisive: 0xEC4C29
 });
 
 /***/ }),
@@ -52196,21 +52209,27 @@ var _globals = __webpack_require__(1);
 
 var _materials = __webpack_require__(22);
 
+var _utils = __webpack_require__(9);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Particle = function () {
-  function Particle() {
+  function Particle(_x, _y, _z, position) {
     _classCallCheck(this, Particle);
 
-    this.velocity = new THREE.Vector3(0, 200, 0);
-    var radius = 0.1;
+    this.velocity = new THREE.Vector3(_x, _y, 0).normalize().multiplyScalar(200);
+    var radius = 0.05;
     var geometry = new THREE.CircleGeometry(radius, 32);
-    this.mesh = new THREE.Mesh(geometry, _materials.basicMaterial);
+    this.mesh = new THREE.Mesh(geometry, _materials.orangeLaserMaterial);
+    var x = position.x,
+        y = position.y,
+        z = position.z;
+
+    this.mesh.position.set(x, y, z);
     this.gravity = new THREE.Vector3(0, -10, 0);
     this.speed = 0.001;
-    _globals.scene.add(this.mesh);
   }
 
   _createClass(Particle, [{
@@ -52221,6 +52240,7 @@ var Particle = function () {
 
       this.velocity = this.velocity.add(this.gravity);
       this.mesh.translateOnAxis(this.velocity, speed);
+      _globals.scene.add(this.mesh);
       if (this.mesh.position.y < -5) {
         _globals.scene.remove(this.mesh);
       }
@@ -52231,12 +52251,15 @@ var Particle = function () {
 }();
 
 var ParticlesInstance = function () {
-  function ParticlesInstance(size) {
+  function ParticlesInstance(size, pos) {
     _classCallCheck(this, ParticlesInstance);
 
     this.array = [];
     for (var i = 0; i < size; i++) {
-      this.array.push(new Particle());
+      var x = (0, _utils.getRandomNumberBetween)(-10, 10);
+      var y = (0, _utils.getRandomNumberBetween)(-10, 10);
+      var z = (0, _utils.getRandomNumberBetween)(-10, 10);
+      this.array.push(new Particle(x, y, x, pos));
     }
   }
 
