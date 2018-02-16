@@ -46116,7 +46116,7 @@ exports.default = opts;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.orangeLaserMaterial = exports.blueShieldMaterial = exports.orangeShieldMaterial = exports.basicPhongMaterial = exports.basicMaterial = undefined;
+exports.normalBlueMaterial = exports.normalOrangeMaterial = exports.orangeLaserMaterial = exports.blueShieldMaterial = exports.orangeShieldMaterial = exports.basicPhongMaterial = exports.basicMaterial = undefined;
 
 var _three = __webpack_require__(0);
 
@@ -46155,6 +46155,14 @@ var orangeLaserMaterial = exports.orangeLaserMaterial = new THREE.MeshBasicMater
   depthWrite: false,
   transparent: true,
   emmisive: 0xEC4C29
+});
+
+var normalOrangeMaterial = exports.normalOrangeMaterial = new THREE.MeshPhongMaterial({
+  color: 0xEC4C29
+});
+
+var normalBlueMaterial = exports.normalBlueMaterial = new THREE.MeshPhongMaterial({
+  color: 0x4B84EC
 });
 
 /***/ }),
@@ -46204,6 +46212,10 @@ var _camera2 = _interopRequireDefault(_camera);
 
 var _Floor = __webpack_require__(19);
 
+var _AudioVisualizer = __webpack_require__(23);
+
+var _AudioVisualizer2 = _interopRequireDefault(_AudioVisualizer);
+
 var _MTLLoader = __webpack_require__(20);
 
 var _MTLLoader2 = _interopRequireDefault(_MTLLoader);
@@ -46221,14 +46233,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 // loaders
 
-
-// Game Objects
-var renderer, controls, controller, camBox, arrowHelper, controllerMesh;
 // utils 
 
 // options
+var renderer, controls, controller, camBox, arrowHelper, controllerMesh;
 
-var controllerCube;
+// Game Objects
+
+var controllerCube, mAudioVisualizer;
 
 // music stuff
 var analyser, dataArray;
@@ -46303,8 +46315,6 @@ function init() {
 
   // AUDIO STUFF ******************************************************
   var audioElement = document.getElementById("myAudio");
-  var ctx = new AudioContext();
-  audioElement.play();
   var audioSrc = ctx.createMediaElementSource(audioElement);
   analyser = ctx.createAnalyser();
   // we have to connect the MediaElementSource with the analyser 
@@ -46315,7 +46325,7 @@ function init() {
   var bufferLength = 8; //analyser.frequencyBinCount;
   var frequencyData = new Uint8Array(bufferLength);
   dataArray = new Uint8Array(bufferLength);
-
+  mAudioVisualizer = new _AudioVisualizer2.default(null, bufferLength);
   // Particle Experiments ******************************************************
 
 
@@ -46357,11 +46367,6 @@ function init() {
   env.position.y -= 2;
   _globals.scene.add(env);
 
-  // Create a light, set its position, and add it to the scene.
-  var light = new THREE.PointLight(0xffffff);
-  light.position.set(-100, 200, 100);
-  _globals.scene.add(light);
-
   controls = new _controls2.default(_camera2.default);
   controls.update();
 }
@@ -46375,14 +46380,15 @@ var tick = 0;
 
 function animate() {
   currentTime = window.performance.now();
+  tick++;
 
-  // if (tick > 70)  {
-  //   BeatManager.createBeat();
-  // }
+  if (tick % 80 == 0) {
+    _BeatManager2.default.createBeat();
+    tick = 0;
+  }
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   // Render the scene.
   analyser.getByteFrequencyData(dataArray);
-  console.log(dataArray);
   renderer.render(_globals.scene, _camera2.default);
   dt = currentTime - lastRenderedTime;
   lastRenderedTime = currentTime;
@@ -46407,6 +46413,7 @@ function animate() {
   _BeatManager2.default.update(dt);
   // }
   _gearVr2.default.update();
+  mAudioVisualizer.update(dataArray);
   requestAnimationFrame(animate);
 }
 
@@ -50617,6 +50624,88 @@ THREE.OBJLoader = function () {
       */
 
 exports.default = THREE.OBJLoader;
+
+/***/ }),
+/* 22 */,
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+var _materials = __webpack_require__(4);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AudioVisualizer = function () {
+  function AudioVisualizer(coordinates, numberOfBins) {
+    _classCallCheck(this, AudioVisualizer);
+
+    this.position = coordinates;
+    // array to hold all bars
+    this.bars = [];
+    // cycle through and create 8 bar graphs
+    var width = 2,
+        height = 0.5,
+        depth = 2;
+
+    var bars = new THREE.Object3D();
+    var geometry = new THREE.BoxGeometry(depth, height, width);
+    for (var i = 0; i < 8; i++) {
+      if (i <= 3) {
+        this.bars[i] = new THREE.Mesh(geometry, _materials.normalBlueMaterial);
+      } else {
+        this.bars[i] = new THREE.Mesh(geometry, _materials.normalOrangeMaterial);
+      }
+      this.bars[i].position.x += i * width * 1.2;
+      bars.add(this.bars[i]);
+    };
+
+    // Give some light to the bars
+
+    var light = new THREE.PointLight(0xEC4C29, 5, 10);
+    light.position.set(4, 0, -32);
+    _globals.scene.add(light);
+
+    var light = new THREE.PointLight(0x4B84EC, 5, 10);
+    light.position.set(-4, 0, -32);
+    _globals.scene.add(light);
+
+    var spotLight = new THREE.SpotLight(0xFFFFFF, 0.2);
+    spotLight.position.set(0, 5, 40);
+    _globals.scene.add(spotLight);
+
+    bars.position.set(-8.2, -0.5, -35);
+    _globals.scene.add(bars);
+  }
+
+  _createClass(AudioVisualizer, [{
+    key: 'update',
+    value: function update(data) {
+      for (var i = 0; i < data.length; i++) {
+        this.bars[i].scale.y = Math.abs(data[i]) * 0.05;
+      }
+    }
+  }]);
+
+  return AudioVisualizer;
+}();
+
+exports.default = AudioVisualizer;
 
 /***/ })
 /******/ ]);
