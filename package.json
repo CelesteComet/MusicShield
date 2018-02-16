@@ -13,6 +13,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
     "budo": "^11.1.0",
+    "express": "^4.16.2",
     "three": "^0.89.0",
     "webpack": "^3.11.0"
   }
