@@ -46230,6 +46230,13 @@ var renderer, controls, controller, camBox, arrowHelper, controllerMesh;
 
 var controllerCube;
 
+// music stuff
+var analyser, dataArray;
+
+var currentTime = window.performance.now();
+var lastRenderedTime = window.performance.now();
+var dt;
+
 window.addEventListener('vr controller connected', function (event) {
 
   controller = event.detail;
@@ -46296,7 +46303,18 @@ function init() {
 
   // AUDIO STUFF ******************************************************
   var audioElement = document.getElementById("myAudio");
-  // audioElement.play();
+  var ctx = new AudioContext();
+  audioElement.play();
+  var audioSrc = ctx.createMediaElementSource(audioElement);
+  analyser = ctx.createAnalyser();
+  // we have to connect the MediaElementSource with the analyser 
+  audioSrc.connect(ctx.destination);
+  audioSrc.connect(analyser);
+  // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
+  // frequencyBinCount tells you how many values you'll receive from the analyser
+  var bufferLength = 8; //analyser.frequencyBinCount;
+  var frequencyData = new Uint8Array(bufferLength);
+  dataArray = new Uint8Array(bufferLength);
 
   // Particle Experiments ******************************************************
 
@@ -46339,39 +46357,12 @@ function init() {
   env.position.y -= 2;
   _globals.scene.add(env);
 
-  // // Create VR controller
-  // controller = new gearVR();
-  // console.log(controller);
-  // controller.rotation.onChangeCallback = (e) => {
-  //   shield.mesh.position.x += 0.111; 
-  // };
-  // controller.setHand( 'right' );
-  // scene.add(controller);
-
-  // var MTL = new THREE.MTLLoader();
-  // MTL.setPath( 'assets/models/gear_vr_controller/' );
-  // MTL.load( 'gear_vr_controller.mtl', function ( materials ) {
-  //   materials.preload();
-  //   var OBJ = new THREE.OBJLoader();
-  //   OBJ.setMaterials( materials );
-  //   OBJ.setPath( 'assets/models/gear_vr_controller/' );
-  //   OBJ.load( 'gear_vr_controller.obj', function ( obj ) {
-  //     // obj.translateZ( 0 );
-  //     controller.add( obj );
-  //     // x is red, y is green, z is blue?
-  //     controller.position.set(0.4, 1.3, -1);
-  //   } );
-  // } );
-
-
   // Create a light, set its position, and add it to the scene.
   var light = new THREE.PointLight(0xffffff);
   light.position.set(-100, 200, 100);
   _globals.scene.add(light);
 
   controls = new _controls2.default(_camera2.default);
-  // camera.position.set(0, 0, 0);
-  // camera.position.z = 20;
   controls.update();
 }
 
@@ -46379,15 +46370,22 @@ var beat = _BeatManager2.default.createBeat();
 // Renders the scene and updates the render as needed.
 var tick = 0;
 
+// time stuff
+
+
 function animate() {
-  tick += 1;
-  if (tick > 1000000) {
-    _BeatManager2.default.createBeat();
-    tick = 0;
-  }
+  currentTime = window.performance.now();
+
+  // if (tick > 70)  {
+  //   BeatManager.createBeat();
+  // }
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   // Render the scene.
+  analyser.getByteFrequencyData(dataArray);
+  console.log(dataArray);
   renderer.render(_globals.scene, _camera2.default);
+  dt = currentTime - lastRenderedTime;
+  lastRenderedTime = currentTime;
   // camBox.rotation.y = 3.14159 * 2;
   // gearVR.update();
 
@@ -46397,18 +46395,17 @@ function animate() {
 
 
   // update game entities
-  // if (shield !== undefined) {
-  //   shield.update();
-  // };
-
+  if (_Shield2.default !== undefined) {
+    _Shield2.default.update();
+  };
 
   // if (shield !== undefined && controllerMesh !== undefined) {
 
   //   shield.mesh.position.set(controllerMesh.position.x, controllerMesh.position.y, controllerMesh.position.z - 5);
   // }
-  if (controllerMesh) {
-    _BeatManager2.default.update(controllerMesh);
-  }
+  // if(controllerMesh) {
+  _BeatManager2.default.update(dt);
+  // }
   _gearVr2.default.update();
   requestAnimationFrame(animate);
 }
@@ -47494,13 +47491,13 @@ var BeatManager = function (_Manager) {
     }
   }, {
     key: 'update',
-    value: function update(controllerMesh) {
+    value: function update(dt) {
       for (var id in this.list) {
         if (this.list[id].willRemove) {
           _globals.scene.remove(this.list[id].mesh);
           delete this.list[id];
         } else {
-          this.list[id].update(controllerMesh);
+          this.list[id].update(dt);
         }
       }
     }
@@ -47603,9 +47600,9 @@ var Beat = function () {
     _globals.scene.add(sphere);
     this.willRemove = false;
     this.mesh = sphere;
-    this.speed = 0.4;
+    this.speed = 0.03;
     var xPos = (0, _utils.getRandomNumberBetween)(-10, 10);
-    this.startingPosition = new THREE.Vector3(xPos, 30, -100);
+    this.startingPosition = new THREE.Vector3(xPos, 30, -300);
     var _startingPosition = this.startingPosition,
         x = _startingPosition.x,
         y = _startingPosition.y,
@@ -47621,7 +47618,7 @@ var Beat = function () {
 
   _createClass(Beat, [{
     key: 'update',
-    value: function update(controllerMesh) {
+    value: function update(dt) {
       // if (this.ray.intersectObjects( scene.children ).length > 0) {
       //   this.willRemove = true;
       // };
@@ -47631,11 +47628,12 @@ var Beat = function () {
       if (this.mesh.position.distanceTo(vector) < 1) {
         this.willRemove = true;
       }
+
       var velocity = this.velocity,
           speed = this.speed,
           mesh = this.mesh;
 
-      mesh.translateOnAxis(velocity, speed);
+      mesh.translateOnAxis(velocity.clone().multiplyScalar(dt), speed);
 
       // check for collisions on ground
       if (mesh.position.y < 0) {
