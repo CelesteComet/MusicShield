@@ -46099,8 +46099,14 @@ var getRandomNumberBetween = exports.getRandomNumberBetween = function getRandom
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var vr;
+if (navigator.userAgent.match('mobi')) {
+  vr = true;
+} else {
+  vr = true;
+}
 var opts = {
-  vr: 1,
+  vr: false,
   wireframe: false
 };
 
@@ -46130,7 +46136,7 @@ var basicMaterial = exports.basicMaterial = new THREE.MeshBasicMaterial({
   color: 0xffffff
 });
 
-var basicPhongMaterial = exports.basicPhongMaterial = new THREE.MeshPhongMaterial({
+var basicPhongMaterial = exports.basicPhongMaterial = new THREE.MeshLambertMaterial({
   color: 0xffffff
 });
 
@@ -46157,11 +46163,11 @@ var orangeLaserMaterial = exports.orangeLaserMaterial = new THREE.MeshBasicMater
   emmisive: 0xEC4C29
 });
 
-var normalOrangeMaterial = exports.normalOrangeMaterial = new THREE.MeshPhongMaterial({
+var normalOrangeMaterial = exports.normalOrangeMaterial = new THREE.MeshLambertMaterial({
   color: 0xEC4C29
 });
 
-var normalBlueMaterial = exports.normalBlueMaterial = new THREE.MeshPhongMaterial({
+var normalBlueMaterial = exports.normalBlueMaterial = new THREE.MeshLambertMaterial({
   color: 0x4B84EC
 });
 
@@ -46314,20 +46320,46 @@ window.onload = function () {
 function init() {
 
   // AUDIO STUFF ******************************************************
-  var audioElement = document.getElementById("myAudio");
-  var audioSrc = ctx.createMediaElementSource(audioElement);
-  analyser = ctx.createAnalyser();
-  // we have to connect the MediaElementSource with the analyser 
-  audioSrc.connect(ctx.destination);
-  audioSrc.connect(analyser);
-  // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
-  // frequencyBinCount tells you how many values you'll receive from the analyser
-  var bufferLength = 8; //analyser.frequencyBinCount;
-  var frequencyData = new Uint8Array(bufferLength);
-  dataArray = new Uint8Array(bufferLength);
-  mAudioVisualizer = new _AudioVisualizer2.default(null, bufferLength);
+  // var audioElement = document.getElementById("myAudio");
+  // var ctx = new AudioContext();
+  // audioElement.play();
+  // var audioSrc = ctx.createMediaElementSource(audioElement);
+  // analyser = ctx.createAnalyser();
+  // // we have to connect the MediaElementSource with the analyser 
+  // audioSrc.connect(ctx.destination)
+  // audioSrc.connect(analyser);
+  // // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
+  // // frequencyBinCount tells you how many values you'll receive from the analyser
+  // var bufferLength = 8;//analyser.frequencyBinCount;
+  // var frequencyData = new Uint8Array(bufferLength);
+  // dataArray = new Uint8Array(bufferLength);
+  // mAudioVisualizer = new AudioVisualizer(null, bufferLength);
   // Particle Experiments ******************************************************
 
+
+  // create an AudioListener and add it to the camera
+  var listener = new THREE.AudioListener();
+  _camera2.default.add(listener);
+
+  // create an Audio source
+  var sound = new THREE.Audio(listener);
+
+  // load a sound and set it as the Audio object's buffer
+  var audioLoader = new THREE.AudioLoader();
+  audioLoader.load('despacito.mp3', function (buffer) {
+    sound.setBuffer(buffer);
+    sound.setLoop(true);
+    sound.setVolume(0.5);
+    setTimeout(function () {
+      sound.play();
+    }, 5000);
+  });
+
+  // create an AudioAnalyser, passing in the sound and desired fftSize
+  analyser = new THREE.AudioAnalyser(sound, 32);
+  analyser.frequencyBinCount = 8;
+
+  mAudioVisualizer = new _AudioVisualizer2.default(null, analyser.frequencyBinCount);
 
   //*********************************************************************************
 
@@ -46355,10 +46387,7 @@ function init() {
   // var controller = new Controller;
 
   _globals.scene.add(_skybox2.default);
-  camBox = new THREE.Object3D();
-  camBox.position.y = 0;
-  camBox.add(_camera2.default);
-  _globals.scene.add(camBox);
+
   var env = new THREE.Object3D();
   // env.add(new Floor);
   // env.add(new ForwardStage);
@@ -46380,15 +46409,10 @@ var tick = 0;
 
 function animate() {
   currentTime = window.performance.now();
-  tick++;
 
-  if (tick % 80 == 0) {
-    _BeatManager2.default.createBeat();
-    tick = 0;
-  }
   // Read more about requestAnimationFrame at http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
   // Render the scene.
-  analyser.getByteFrequencyData(dataArray);
+  // analyser.getByteFrequencyData(dataArray);
   renderer.render(_globals.scene, _camera2.default);
   dt = currentTime - lastRenderedTime;
   lastRenderedTime = currentTime;
@@ -46402,7 +46426,7 @@ function animate() {
 
   // update game entities
   if (_Shield2.default !== undefined) {
-    _Shield2.default.update();
+    _Shield2.default.update(dt);
   };
 
   // if (shield !== undefined && controllerMesh !== undefined) {
@@ -46413,7 +46437,16 @@ function animate() {
   _BeatManager2.default.update(dt);
   // }
   _gearVr2.default.update();
-  mAudioVisualizer.update(dataArray);
+
+  // get the average frequency of the sound
+  analyser.getFrequencyData();
+  var musicData = [];
+  var ad = analyser.data;
+  for (var i = 0; i < 8; i++) {
+    musicData.push(ad[i] + ad[i + 1] / 2);
+  }
+  mAudioVisualizer.update(musicData);
+
   requestAnimationFrame(animate);
 }
 
@@ -47486,7 +47519,11 @@ var BeatManager = function (_Manager) {
   function BeatManager() {
     _classCallCheck(this, BeatManager);
 
-    return _possibleConstructorReturn(this, (BeatManager.__proto__ || Object.getPrototypeOf(BeatManager)).call(this));
+    var _this = _possibleConstructorReturn(this, (BeatManager.__proto__ || Object.getPrototypeOf(BeatManager)).call(this));
+
+    _this.lastCreated = 0;
+    _this.rate = 650;
+    return _this;
   }
 
   _createClass(BeatManager, [{
@@ -47499,6 +47536,12 @@ var BeatManager = function (_Manager) {
   }, {
     key: 'update',
     value: function update(dt) {
+      this.lastCreated += dt;
+      if (this.lastCreated > this.rate) {
+        this.createBeat();
+        this.lastCreated = 0;
+      }
+
       for (var id in this.list) {
         if (this.list[id].willRemove) {
           _globals.scene.remove(this.list[id].mesh);
@@ -47585,6 +47628,10 @@ var _Shield = __webpack_require__(17);
 
 var _Shield2 = _interopRequireDefault(_Shield);
 
+var _Particle = __webpack_require__(22);
+
+var _Particle2 = _interopRequireDefault(_Particle);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -47609,14 +47656,16 @@ var Beat = function () {
     this.mesh = sphere;
     this.speed = 0.03;
     var xPos = (0, _utils.getRandomNumberBetween)(-10, 10);
-    this.startingPosition = new THREE.Vector3(xPos, 30, -300);
+    this.startingPosition = new THREE.Vector3(xPos, 80, -300);
     var _startingPosition = this.startingPosition,
         x = _startingPosition.x,
         y = _startingPosition.y,
         z = _startingPosition.z;
 
+    var randomX = (0, _utils.getRandomNumberBetween)(-1, 1);
+    var randomY = (0, _utils.getRandomNumberBetween)(-2, 0);
     this.mesh.position.set(x, y, z);
-    this.velocity = (0, _utils.getDirectionBetweenTwoVectors)(this.startingPosition, new THREE.Vector3(0, 0, 0));
+    this.velocity = (0, _utils.getDirectionBetweenTwoVectors)(this.startingPosition, new THREE.Vector3(randomX, randomY, 0));
 
     // lets add some collisions, origin, direction, near, far
     this.ray = new THREE.Raycaster(this.mesh.position, this.velocity, 0, 1);
@@ -47643,7 +47692,7 @@ var Beat = function () {
       mesh.translateOnAxis(velocity.clone().multiplyScalar(dt), speed);
 
       // check for collisions on ground
-      if (mesh.position.y < 0) {
+      if (mesh.position.y < -5) {
         this.willRemove = true;
       }
     }
@@ -49089,6 +49138,14 @@ var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
+var _opts = __webpack_require__(3);
+
+var _opts2 = _interopRequireDefault(_opts);
+
+var _globals = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /* Camera stuff */
@@ -49097,12 +49154,17 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // near — Camera frustum near plane.
 // far — Camera frustum far plane.
 
-var initialCameraPosition = new THREE.Vector3(0, 0, 0);
 
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 20000);
 
-camera.position.set(0, 0, 0);
-camera.position.z = 20;
+var camBox = new THREE.Object3D();
+if (!_opts2.default.vr) {
+  camBox.position.z = -40;
+}
+camBox.add(camera);
+camBox.position.set(0, 0, 0);
+camBox.lookAt(0, 0, 0);
+_globals.scene.add(camBox);
 
 exports.default = camera;
 
@@ -49151,7 +49213,7 @@ var Shield = function () {
     this.mesh.name = 'shield';
     // set initial position of the shield, 1.8 is the height of the camBox
     this.mesh.position.set(0, 1.8, -5);
-    this.speed = 0.1;
+    this.speed = 0.005;
 
     _globals.scene.add(this.mesh);
     return this;
@@ -49159,21 +49221,21 @@ var Shield = function () {
 
   _createClass(Shield, [{
     key: 'update',
-    value: function update() {
+    value: function update(dt) {
       var speed = this.speed,
           mesh = this.mesh;
 
       if (_Keyboard2.default.keys['left']) {
-        mesh.translateOnAxis(new THREE.Vector3(-1, 0, 0), speed);
+        mesh.translateOnAxis(new THREE.Vector3(-1, 0, 0).multiplyScalar(dt), speed);
       }
       if (_Keyboard2.default.keys['right']) {
-        mesh.translateOnAxis(new THREE.Vector3(1, 0, 0), speed);
+        mesh.translateOnAxis(new THREE.Vector3(1, 0, 0).multiplyScalar(dt), speed);
       }
       if (_Keyboard2.default.keys['up']) {
-        mesh.translateOnAxis(new THREE.Vector3(0, 1, 0), speed);
+        mesh.translateOnAxis(new THREE.Vector3(0, 1, 0).multiplyScalar(dt), speed);
       }
       if (_Keyboard2.default.keys['down']) {
-        mesh.translateOnAxis(new THREE.Vector3(0, -1, 0), speed);
+        mesh.translateOnAxis(new THREE.Vector3(0, -1, 0).multiplyScalar(dt), speed);
       }
     }
   }]);
@@ -50626,7 +50688,13 @@ THREE.OBJLoader = function () {
 exports.default = THREE.OBJLoader;
 
 /***/ }),
-/* 22 */,
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -50665,7 +50733,7 @@ var AudioVisualizer = function () {
 
     var bars = new THREE.Object3D();
     var geometry = new THREE.BoxGeometry(depth, height, width);
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < numberOfBins; i++) {
       if (i <= 3) {
         this.bars[i] = new THREE.Mesh(geometry, _materials.normalBlueMaterial);
       } else {
@@ -50678,11 +50746,11 @@ var AudioVisualizer = function () {
     // Give some light to the bars
 
     var light = new THREE.PointLight(0xEC4C29, 5, 10);
-    light.position.set(4, 0, -32);
+    light.position.set(4, 0, -27);
     _globals.scene.add(light);
 
     var light = new THREE.PointLight(0x4B84EC, 5, 10);
-    light.position.set(-4, 0, -32);
+    light.position.set(-4, 0, -27);
     _globals.scene.add(light);
 
     var spotLight = new THREE.SpotLight(0xFFFFFF, 0.2);
