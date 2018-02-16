@@ -46106,7 +46106,7 @@ if (navigator.userAgent.match('mobi')) {
   vr = true;
 }
 var opts = {
-  vr: false,
+  vr: true,
   wireframe: false
 };
 
