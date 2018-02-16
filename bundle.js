@@ -46073,53 +46073,6 @@ var scene = exports.scene = new THREE.Scene();
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-var getDirectionBetweenTwoVectors = exports.getDirectionBetweenTwoVectors = function getDirectionBetweenTwoVectors(start, end) {
-    return end.sub(start).normalize();
-};
-
-var getRandomNumberBetween = exports.getRandomNumberBetween = function getRandomNumberBetween(min, max) {
-    var min = Math.ceil(min);
-    var max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-// export const getRandomNumberBetweenOneAndNegativeOne = () => {
-//   num *= Math.floor(Math.random()*2) == 1 ? 1 : -1; // this will add minus sign in 50% of cases
-// }
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var vr;
-if (navigator.userAgent.match('mobi')) {
-  vr = true;
-} else {
-  vr = true;
-}
-var opts = {
-  vr: true,
-  wireframe: false
-};
-
-exports.default = opts;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.normalBlueMaterial = exports.normalOrangeMaterial = exports.orangeLaserMaterial = exports.blueShieldMaterial = exports.orangeShieldMaterial = exports.basicPhongMaterial = exports.basicMaterial = undefined;
@@ -46172,6 +46125,107 @@ var normalBlueMaterial = exports.normalBlueMaterial = new THREE.MeshLambertMater
 });
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var vr;
+if (navigator.userAgent.match('mobi')) {
+  vr = true;
+} else {
+  vr = true;
+}
+var opts = {
+  vr: true,
+  wireframe: false
+};
+
+exports.default = opts;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+var _Keyboard = __webpack_require__(8);
+
+var _Keyboard2 = _interopRequireDefault(_Keyboard);
+
+var _materials = __webpack_require__(2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Shield = function () {
+  function Shield() {
+    _classCallCheck(this, Shield);
+
+    // geometry and material of the shield 
+    var geometry = new THREE.BoxGeometry(1, 1.2, 0.2);
+    // var material = new THREE.MeshBasicMaterial( {color: "rgb(128,128,128)"} );
+
+    // mesh creation
+    var shield = new THREE.Mesh(geometry, _materials.orangeShieldMaterial);
+    this.mesh = shield;
+    this.mesh.name = 'shield';
+    // set initial position of the shield, 1.8 is the height of the camBox
+    this.mesh.position.set(0, 1.8, -5);
+    this.speed = 0.005;
+
+    _globals.scene.add(this.mesh);
+    return this;
+  }
+
+  _createClass(Shield, [{
+    key: 'update',
+    value: function update(dt) {
+      var speed = this.speed,
+          mesh = this.mesh;
+
+      if (_Keyboard2.default.keys['left']) {
+        mesh.translateOnAxis(new THREE.Vector3(-1, 0, 0).multiplyScalar(dt), speed);
+      }
+      if (_Keyboard2.default.keys['right']) {
+        mesh.translateOnAxis(new THREE.Vector3(1, 0, 0).multiplyScalar(dt), speed);
+      }
+      if (_Keyboard2.default.keys['up']) {
+        mesh.translateOnAxis(new THREE.Vector3(0, 1, 0).multiplyScalar(dt), speed);
+      }
+      if (_Keyboard2.default.keys['down']) {
+        mesh.translateOnAxis(new THREE.Vector3(0, -1, 0).multiplyScalar(dt), speed);
+      }
+    }
+  }]);
+
+  return Shield;
+}();
+
+var mShield = new Shield();
+exports.default = mShield;
+
+/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -46190,21 +46244,21 @@ var _skybox = __webpack_require__(7);
 
 var _skybox2 = _interopRequireDefault(_skybox);
 
-var _Shield = __webpack_require__(17);
+var _Shield = __webpack_require__(4);
 
 var _Shield2 = _interopRequireDefault(_Shield);
 
-var _BeatManager = __webpack_require__(8);
+var _BeatManager = __webpack_require__(9);
 
 var _BeatManager2 = _interopRequireDefault(_BeatManager);
 
 var _globals = __webpack_require__(1);
 
-var _webVR = __webpack_require__(11);
+var _webVR = __webpack_require__(14);
 
 var _webVR2 = _interopRequireDefault(_webVR);
 
-var _gearVr = __webpack_require__(12);
+var _gearVr = __webpack_require__(15);
 
 var _gearVr2 = _interopRequireDefault(_gearVr);
 
@@ -46216,17 +46270,17 @@ var _camera = __webpack_require__(16);
 
 var _camera2 = _interopRequireDefault(_camera);
 
-var _Floor = __webpack_require__(19);
+var _Floor = __webpack_require__(17);
 
-var _AudioVisualizer = __webpack_require__(23);
+var _AudioVisualizer = __webpack_require__(18);
 
 var _AudioVisualizer2 = _interopRequireDefault(_AudioVisualizer);
 
-var _MTLLoader = __webpack_require__(20);
+var _MTLLoader = __webpack_require__(19);
 
 var _MTLLoader2 = _interopRequireDefault(_MTLLoader);
 
-var _OBJLoader = __webpack_require__(21);
+var _OBJLoader = __webpack_require__(20);
 
 var _OBJLoader2 = _interopRequireDefault(_OBJLoader);
 
@@ -46446,7 +46500,6 @@ function animate() {
     musicData.push(ad[i] + ad[i + 1] / 2);
   }
   mAudioVisualizer.update(musicData);
-
   requestAnimationFrame(animate);
 }
 
@@ -47489,15 +47542,98 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Keyboard = function () {
+  function Keyboard() {
+    _classCallCheck(this, Keyboard);
+
+    console.log("Keyboard initialized");
+    this.keys = {
+      'up': false,
+      'down': false,
+      'left': false,
+      'right': false,
+      'fire': false
+    };
+  }
+
+  _createClass(Keyboard, [{
+    key: 'init',
+    value: function init() {
+      var _this = this;
+
+      document.addEventListener('keydown', function (e) {
+        var code = e.keyCode;
+        if (code == 87) {
+          _this.keys['up'] = true;
+        }
+        if (code == 68) {
+          _this.keys['right'] = true;
+        }
+        if (code == 65) {
+          _this.keys['left'] = true;
+        }
+        if (code == 83) {
+          _this.keys['down'] = true;
+        }
+        if (code == 32) {
+          _this.keys['fire'] = true;
+        }
+      });
+
+      document.addEventListener('keyup', function (e) {
+        var code = e.keyCode;
+
+        if (code == 87) {
+          _this.keys['up'] = false;
+        }
+        if (code == 68) {
+          _this.keys['right'] = false;
+        }
+        if (code == 65) {
+          _this.keys['left'] = false;
+        }
+        if (code == 83) {
+          _this.keys['down'] = false;
+        }
+        if (code == 32) {
+          _this.keys['fire'] = false;
+        }
+      });
+    }
+  }]);
+
+  return Keyboard;
+}();
+
+var keyboard = new Keyboard();
+keyboard.init();
+
+exports.default = keyboard;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _three = __webpack_require__(0);
 
 var THREE = _interopRequireWildcard(_three);
 
-var _Manager2 = __webpack_require__(9);
+var _Manager2 = __webpack_require__(10);
 
 var _Manager3 = _interopRequireDefault(_Manager2);
 
-var _Beat = __webpack_require__(10);
+var _Beat = __webpack_require__(11);
 
 var _Beat2 = _interopRequireDefault(_Beat);
 
@@ -47523,6 +47659,7 @@ var BeatManager = function (_Manager) {
 
     _this.lastCreated = 0;
     _this.rate = 650;
+    _this.start = false;
     return _this;
   }
 
@@ -47536,6 +47673,7 @@ var BeatManager = function (_Manager) {
   }, {
     key: 'update',
     value: function update(dt) {
+
       this.lastCreated += dt;
       if (this.lastCreated > this.rate) {
         this.createBeat();
@@ -47563,7 +47701,7 @@ var mBeatManager = new BeatManager();
 exports.default = mBeatManager;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47604,7 +47742,7 @@ var Manager = function () {
 exports.default = Manager;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47622,13 +47760,13 @@ var THREE = _interopRequireWildcard(_three);
 
 var _globals = __webpack_require__(1);
 
-var _utils = __webpack_require__(2);
+var _utils = __webpack_require__(12);
 
-var _Shield = __webpack_require__(17);
+var _Shield = __webpack_require__(4);
 
 var _Shield2 = _interopRequireDefault(_Shield);
 
-var _Particle = __webpack_require__(22);
+var _Particle = __webpack_require__(13);
 
 var _Particle2 = _interopRequireDefault(_Particle);
 
@@ -47704,7 +47842,38 @@ var Beat = function () {
 exports.default = Beat;
 
 /***/ }),
-/* 11 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var getDirectionBetweenTwoVectors = exports.getDirectionBetweenTwoVectors = function getDirectionBetweenTwoVectors(start, end) {
+    return end.sub(start).normalize();
+};
+
+var getRandomNumberBetween = exports.getRandomNumberBetween = function getRandomNumberBetween(min, max) {
+    var min = Math.ceil(min);
+    var max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// export const getRandomNumberBetweenOneAndNegativeOne = () => {
+//   num *= Math.floor(Math.random()*2) == 1 ? 1 : -1; // this will add minus sign in 50% of cases
+// }
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/***/ }),
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47859,7 +48028,7 @@ var WEBVR = {
 exports.default = WEBVR;
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -49121,9 +49290,6 @@ OrientationArmModel.prototype.quatAngle_ = function (q1, q2) {
 exports.default = THREE.VRController;
 
 /***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */,
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49178,167 +49344,6 @@ exports.default = camera;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _three = __webpack_require__(0);
-
-var THREE = _interopRequireWildcard(_three);
-
-var _globals = __webpack_require__(1);
-
-var _Keyboard = __webpack_require__(18);
-
-var _Keyboard2 = _interopRequireDefault(_Keyboard);
-
-var _materials = __webpack_require__(4);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Shield = function () {
-  function Shield() {
-    _classCallCheck(this, Shield);
-
-    // geometry and material of the shield 
-    var geometry = new THREE.BoxGeometry(1, 1.2, 0.2);
-    // var material = new THREE.MeshBasicMaterial( {color: "rgb(128,128,128)"} );
-
-    // mesh creation
-    var shield = new THREE.Mesh(geometry, _materials.orangeShieldMaterial);
-    this.mesh = shield;
-    this.mesh.name = 'shield';
-    // set initial position of the shield, 1.8 is the height of the camBox
-    this.mesh.position.set(0, 1.8, -5);
-    this.speed = 0.005;
-
-    _globals.scene.add(this.mesh);
-    return this;
-  }
-
-  _createClass(Shield, [{
-    key: 'update',
-    value: function update(dt) {
-      var speed = this.speed,
-          mesh = this.mesh;
-
-      if (_Keyboard2.default.keys['left']) {
-        mesh.translateOnAxis(new THREE.Vector3(-1, 0, 0).multiplyScalar(dt), speed);
-      }
-      if (_Keyboard2.default.keys['right']) {
-        mesh.translateOnAxis(new THREE.Vector3(1, 0, 0).multiplyScalar(dt), speed);
-      }
-      if (_Keyboard2.default.keys['up']) {
-        mesh.translateOnAxis(new THREE.Vector3(0, 1, 0).multiplyScalar(dt), speed);
-      }
-      if (_Keyboard2.default.keys['down']) {
-        mesh.translateOnAxis(new THREE.Vector3(0, -1, 0).multiplyScalar(dt), speed);
-      }
-    }
-  }]);
-
-  return Shield;
-}();
-
-var mShield = new Shield();
-exports.default = mShield;
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Keyboard = function () {
-  function Keyboard() {
-    _classCallCheck(this, Keyboard);
-
-    console.log("Keyboard initialized");
-    this.keys = {
-      'up': false,
-      'down': false,
-      'left': false,
-      'right': false,
-      'fire': false
-    };
-  }
-
-  _createClass(Keyboard, [{
-    key: 'init',
-    value: function init() {
-      var _this = this;
-
-      document.addEventListener('keydown', function (e) {
-        var code = e.keyCode;
-        if (code == 87) {
-          _this.keys['up'] = true;
-        }
-        if (code == 68) {
-          _this.keys['right'] = true;
-        }
-        if (code == 65) {
-          _this.keys['left'] = true;
-        }
-        if (code == 83) {
-          _this.keys['down'] = true;
-        }
-        if (code == 32) {
-          _this.keys['fire'] = true;
-        }
-      });
-
-      document.addEventListener('keyup', function (e) {
-        var code = e.keyCode;
-
-        if (code == 87) {
-          _this.keys['up'] = false;
-        }
-        if (code == 68) {
-          _this.keys['right'] = false;
-        }
-        if (code == 65) {
-          _this.keys['left'] = false;
-        }
-        if (code == 83) {
-          _this.keys['down'] = false;
-        }
-        if (code == 32) {
-          _this.keys['fire'] = false;
-        }
-      });
-    }
-  }]);
-
-  return Keyboard;
-}();
-
-var keyboard = new Keyboard();
-keyboard.init();
-
-exports.default = keyboard;
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 exports.RightSideStage = exports.LeftSideStage = exports.ForwardStage = exports.Floor = undefined;
 
 var _three = __webpack_require__(0);
@@ -49351,7 +49356,7 @@ var _opts2 = _interopRequireDefault(_opts);
 
 var _globals = __webpack_require__(1);
 
-var _materials = __webpack_require__(4);
+var _materials = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -49523,7 +49528,88 @@ exports.LeftSideStage = LeftSideStage;
 exports.RightSideStage = RightSideStage;
 
 /***/ }),
-/* 20 */
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = __webpack_require__(0);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _globals = __webpack_require__(1);
+
+var _materials = __webpack_require__(2);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AudioVisualizer = function () {
+  function AudioVisualizer(coordinates, numberOfBins) {
+    _classCallCheck(this, AudioVisualizer);
+
+    this.position = coordinates;
+    // array to hold all bars
+    this.bars = [];
+    // cycle through and create 8 bar graphs
+    var width = 2,
+        height = 0.5,
+        depth = 2;
+
+    var bars = new THREE.Object3D();
+    var geometry = new THREE.BoxGeometry(depth, height, width);
+    for (var i = 0; i < numberOfBins; i++) {
+      if (i <= 3) {
+        this.bars[i] = new THREE.Mesh(geometry, _materials.normalBlueMaterial);
+      } else {
+        this.bars[i] = new THREE.Mesh(geometry, _materials.normalOrangeMaterial);
+      }
+      this.bars[i].position.x += i * width * 1.2;
+      bars.add(this.bars[i]);
+    };
+
+    // Give some light to the bars
+
+    var light = new THREE.PointLight(0xEC4C29, 5, 10);
+    light.position.set(4, 0, -27);
+    _globals.scene.add(light);
+
+    var light = new THREE.PointLight(0x4B84EC, 5, 10);
+    light.position.set(-4, 0, -27);
+    _globals.scene.add(light);
+
+    var spotLight = new THREE.SpotLight(0xFFFFFF, 0.2);
+    spotLight.position.set(0, 5, 40);
+    _globals.scene.add(spotLight);
+
+    bars.position.set(-8.2, -0.5, -35);
+    _globals.scene.add(bars);
+  }
+
+  _createClass(AudioVisualizer, [{
+    key: 'update',
+    value: function update(data) {
+      for (var i = 0; i < data.length; i++) {
+        this.bars[i].scale.y = Math.abs(data[i]) * 0.05;
+      }
+    }
+  }]);
+
+  return AudioVisualizer;
+}();
+
+exports.default = AudioVisualizer;
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50046,7 +50132,7 @@ THREE.MTLLoader.MaterialCreator.prototype = {
 exports.default = THREE.MTLLoader;
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -50686,94 +50772,6 @@ THREE.OBJLoader = function () {
       */
 
 exports.default = THREE.OBJLoader;
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _three = __webpack_require__(0);
-
-var THREE = _interopRequireWildcard(_three);
-
-var _globals = __webpack_require__(1);
-
-var _materials = __webpack_require__(4);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var AudioVisualizer = function () {
-  function AudioVisualizer(coordinates, numberOfBins) {
-    _classCallCheck(this, AudioVisualizer);
-
-    this.position = coordinates;
-    // array to hold all bars
-    this.bars = [];
-    // cycle through and create 8 bar graphs
-    var width = 2,
-        height = 0.5,
-        depth = 2;
-
-    var bars = new THREE.Object3D();
-    var geometry = new THREE.BoxGeometry(depth, height, width);
-    for (var i = 0; i < numberOfBins; i++) {
-      if (i <= 3) {
-        this.bars[i] = new THREE.Mesh(geometry, _materials.normalBlueMaterial);
-      } else {
-        this.bars[i] = new THREE.Mesh(geometry, _materials.normalOrangeMaterial);
-      }
-      this.bars[i].position.x += i * width * 1.2;
-      bars.add(this.bars[i]);
-    };
-
-    // Give some light to the bars
-
-    var light = new THREE.PointLight(0xEC4C29, 5, 10);
-    light.position.set(4, 0, -27);
-    _globals.scene.add(light);
-
-    var light = new THREE.PointLight(0x4B84EC, 5, 10);
-    light.position.set(-4, 0, -27);
-    _globals.scene.add(light);
-
-    var spotLight = new THREE.SpotLight(0xFFFFFF, 0.2);
-    spotLight.position.set(0, 5, 40);
-    _globals.scene.add(spotLight);
-
-    bars.position.set(-8.2, -0.5, -35);
-    _globals.scene.add(bars);
-  }
-
-  _createClass(AudioVisualizer, [{
-    key: 'update',
-    value: function update(data) {
-      for (var i = 0; i < data.length; i++) {
-        this.bars[i].scale.y = Math.abs(data[i]) * 0.05;
-      }
-    }
-  }]);
-
-  return AudioVisualizer;
-}();
-
-exports.default = AudioVisualizer;
 
 /***/ })
 /******/ ]);
