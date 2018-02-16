@@ -1,6 +1,13 @@
 MusicShield
+
+Live Link 
+
+https://music-shield.herokuapp.com/
+
+Controls: Use WASD to move the shield and catch the beats.
+
 Background and Overview
-Music shield is a VR game where orbs fly at the player in a rhythmic manner and the player has to shield away the orbs.
+Music shield is a VR EXPERIENCE where orbs fly at the player in a rhythmic manner and the player can catch the beats.
 
 Functionality & MVP
 Users will be able to play this game on a VR enabled browser.
